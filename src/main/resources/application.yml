@@ -4,8 +4,8 @@ spring:
   
   datasource:
     url: jdbc:postgresql://localhost:5432/jobboard
-    username: jobboard
-    password: jobboard123
+    username: ""
+    password: ""
     driver-class-name: org.postgresql.Driver
   
   jpa:

@@ -3,9 +3,9 @@ spring:
     name: job-board-platform
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/jobboard
-    username: ""
-    password: ""
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jobboard}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   
   jpa:
@@ -29,14 +29,14 @@ spring:
 
 # JWT Configuration
 jwt:
-  secret: mySecretKey123456789012345678901234567890
-  expiration: 86400000 # 24 hours in milliseconds
-  refresh-expiration: 604800000 # 7 days in milliseconds
+  secret: ${JWT_SECRET:mySecretKey123456789012345678901234567890}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days in milliseconds
 
 # File Upload Configuration
 file:
   upload:
-    dir: ./uploads/resumes
+    dir: ${FILE_UPLOAD_DIR:./uploads/resumes}
 
 # Swagger Configuration
 springdoc:
@@ -53,4 +53,4 @@ logging:
     org.hibernate.SQL: DEBUG
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}

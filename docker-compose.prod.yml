@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: jobboard-postgres
+    container_name: jobboard-postgres-prod
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -11,7 +11,9 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backup:/backup
+    restart: unless-stopped
     networks:
       - jobboard-network
     healthcheck:
@@ -21,27 +23,27 @@ services:
       retries: 3
 
   app:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: jobboard-app
+    image: job-board-platform:latest
+    container_name: jobboard-app-prod
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
-      FILE_UPLOAD_DIR: ${FILE_UPLOAD_DIR}
+      FILE_UPLOAD_DIR: /app/uploads
       JAVA_OPTS: ${JAVA_OPTS}
     ports:
       - "${APP_PORT}:8080"
     volumes:
       - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    restart: unless-stopped
     networks:
       - jobboard-network
     healthcheck:
@@ -49,10 +51,26 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 90s
+      start_period: 60s
+
+  nginx:
+    image: nginx:alpine
+    container_name: jobboard-nginx
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
+    networks:
+      - jobboard-network
 
 volumes:
-  postgres_data:
+  postgres_prod_data:
 
 networks:
   jobboard-network:

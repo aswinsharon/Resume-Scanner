@@ -27,4 +27,6 @@ file:
 
 logging:
   level:
-    com.jobboard: DEBUG
+    com.jobboard: ERROR
+    org.springframework.security: ERROR
+    org.hibernate.SQL: ERROR

@@ -5,17 +5,17 @@ services:
     image: postgres:15-alpine
     container_name: jobboard-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: jobboard
+      POSTGRES_USER: jobboard
+      POSTGRES_PASSWORD: jobboard123
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - jobboard-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U jobboard"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -29,17 +29,17 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: ${JWT_EXPIRATION}
-      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
-      FILE_UPLOAD_DIR: ${FILE_UPLOAD_DIR}
-      JAVA_OPTS: ${JAVA_OPTS}
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobboard
+      SPRING_DATASOURCE_USERNAME: jobboard
+      SPRING_DATASOURCE_PASSWORD: jobboard123
+      JWT_SECRET: mySecretKey123456789012345678901234567890
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+      FILE_UPLOAD_DIR: ./uploads
+      JAVA_OPTS: -Xmx512m -Xms256m
     ports:
-      - "${APP_PORT}:8080"
+      - "8080:8080"
     volumes:
       - ./uploads:/app/uploads
     networks:

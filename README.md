@@ -171,6 +171,45 @@ docker search amazoncorretto
 docker build -t job-board-platform:latest .
 ```
 
+**Troubleshooting Runtime Issues:**
+```bash
+# Issue 1: Environment variable substitution problems
+# Error: FATAL: password authentication failed for user "${SPRING_DATASOURCE_USERNAME}"
+
+# Solution A: Use the simple docker-compose file (no env vars)
+docker-compose -f docker-compose.simple.yml up -d
+
+# Solution B: Check environment variable loading
+docker-compose --env-file .env config
+
+# Solution C: Verify .env file exists and has correct values
+cat .env
+
+# Solution D: Check environment variables in running container
+docker exec jobboard-app env | grep SPRING
+
+# Issue 2: Database connection problems
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# Check PostgreSQL logs
+docker logs jobboard-postgres
+
+# Test database connection
+docker exec -it jobboard-postgres psql -U jobboard -d jobboard -c "SELECT 1;"
+
+# Issue 3: Application startup problems
+# Check application logs
+docker logs -f jobboard-app
+
+# Check health endpoint
+curl http://localhost:8080/actuator/health
+
+# Issue 4: Debug environment variables
+chmod +x debug-env.sh check-env.sh
+./debug-env.sh
+```
+
 #### Step 3: Run with Docker Network
 ```bash
 # Create a custom network
@@ -353,20 +392,104 @@ Total Score = (Skill Score × 0.5) + (Experience Score × 0.3) + (Education Scor
 
 ## Testing
 
-### Unit Tests
-```bash
-./mvnw test
+The project includes comprehensive test coverage with unit tests, integration tests, and test utilities.
+
+### Test Structure
+```
+src/test/java/
+├── com/jobboard/
+│   ├── controller/          # Controller layer tests
+│   ├── service/            # Service layer tests  
+│   ├── repository/         # Repository layer tests
+│   ├── security/           # Security component tests
+│   ├── integration/        # Integration tests with Testcontainers
+│   └── util/              # Test utilities and builders
 ```
 
-### Integration Tests with Testcontainers
+### Running Tests
+
+#### Unit Tests
 ```bash
+# Run all unit tests
+./mvnw test
+
+# Run specific test class
+./mvnw test -Dtest=AuthServiceTest
+
+# Run tests with coverage
+./mvnw test jacoco:report
+```
+
+#### Integration Tests
+```bash
+# Run integration tests (requires Docker for Testcontainers)
 ./mvnw test -Dtest=**/*IntegrationTest
+
+# Run all tests including integration
+./mvnw verify
+```
+
+#### Test Categories
+
+**Unit Tests:**
+- `JwtTokenProviderTest` - JWT token generation and validation
+- `AuthServiceTest` - Authentication and registration logic
+- `ResumeParsingServiceTest` - Resume text parsing and skill extraction
+- `MatchingServiceTest` - Job-candidate matching algorithm
+- `UserRepositoryTest` - Database operations
+
+**Integration Tests:**
+- `AuthIntegrationTest` - End-to-end authentication flows with real database
+
+**Controller Tests:**
+- `AuthControllerTest` - REST API endpoints with mocked services
+
+### Test Configuration
+
+Tests use H2 in-memory database by default for fast execution:
+```yaml
+# src/test/resources/application-test.yml
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+```
+
+Integration tests use Testcontainers with PostgreSQL:
+```java
+@Container
+static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
 ```
 
 ### Test Coverage
-```bash
-./mvnw jacoco:report
+
+The test suite covers:
+- ✅ Authentication and authorization flows
+- ✅ JWT token management
+- ✅ Resume parsing and skill extraction
+- ✅ Job-candidate matching algorithm
+- ✅ Database operations and queries
+- ✅ REST API endpoints and validation
+- ✅ Error handling and edge cases
+
+### Test Utilities
+
+Use `TestDataBuilder` for creating test objects:
+```java
+User testUser = TestDataBuilder.createTestUser("test@example.com", "John", "Doe");
+Job testJob = TestDataBuilder.createTestJob(recruiter);
+RegisterRequest request = TestDataBuilder.createTestRegisterRequest("test@example.com", "CANDIDATE");
 ```
+
+### Continuous Integration
+
+Tests are designed to run in CI/CD environments:
+- No external dependencies (except Docker for integration tests)
+- Fast execution with H2 database
+- Comprehensive coverage for critical paths
+- Testcontainers for realistic integration testing
 
 ## Configuration
 

@@ -4,8 +4,8 @@ spring:
   
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jobboard}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:987654321}
     driver-class-name: org.postgresql.Driver
   
   jpa:
@@ -48,9 +48,9 @@ springdoc:
 # Logging
 logging:
   level:
-    com.jobboard: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.jobboard: ${LOG_LEVEL:INFO}
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
 
 server:
   port: ${SERVER_PORT:8080}

@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +60,7 @@ public class CandidateController {
     @Operation(summary = "Upload resume")
     public ResponseEntity<ApiResponse<Resume>> uploadResume(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam("file") MultipartFile file) throws IOException {
+            @RequestParam("file") MultipartFile file) throws IOException, TikaException {
 
         Resume resume = candidateService.uploadResume(userPrincipal.getId(), file);
         return ResponseEntity.ok(new ApiResponse<>(true, resume, "Resume uploaded successfully"));

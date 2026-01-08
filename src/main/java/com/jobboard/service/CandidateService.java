@@ -8,6 +8,8 @@ import com.jobboard.dto.user.UserResponse;
 import com.jobboard.exception.BadRequestException;
 import com.jobboard.exception.ResourceNotFoundException;
 import com.jobboard.repository.*;
+
+import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -81,7 +83,7 @@ public class CandidateService {
         return convertToCandidateProfileResponse(savedCandidate);
     }
 
-    public Resume uploadResume(Long userId, MultipartFile file) throws IOException {
+    public Resume uploadResume(Long userId, MultipartFile file) throws IOException, TikaException {
         Candidate candidate = candidateRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Candidate profile not found"));
 

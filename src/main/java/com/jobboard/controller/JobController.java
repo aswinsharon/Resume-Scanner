@@ -1,8 +1,8 @@
 package com.jobboard.controller;
 
-import com.jobboard.controller.AuthController.ApiResponse;
 import com.jobboard.domain.Application;
 import com.jobboard.domain.Job;
+import com.jobboard.dto.common.ApiResponse;
 import com.jobboard.dto.application.ApplicationResponse;
 import com.jobboard.dto.job.CandidateMatchResponse;
 import com.jobboard.dto.job.JobRequest;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +44,6 @@ public class JobController {
             @RequestParam(required = false) Boolean remote,
             @RequestParam(required = false) BigDecimal salaryMin,
             Pageable pageable) {
-
         Page<JobResponse> jobs = jobService.searchJobs(title, location, jobType, remote, salaryMin, pageable);
         return ResponseEntity.ok(new ApiResponse<>(true, jobs, "Jobs retrieved successfully"));
     }

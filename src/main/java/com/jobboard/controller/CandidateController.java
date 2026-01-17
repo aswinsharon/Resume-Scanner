@@ -1,11 +1,11 @@
 package com.jobboard.controller;
 
-import com.jobboard.controller.AuthController.ApiResponse;
 import com.jobboard.domain.Education;
 import com.jobboard.domain.Experience;
 import com.jobboard.domain.Resume;
 import com.jobboard.dto.application.ApplicationResponse;
 import com.jobboard.dto.candidate.*;
+import com.jobboard.dto.common.ApiResponse;
 import com.jobboard.dto.job.JobResponse;
 import com.jobboard.security.UserPrincipal;
 import com.jobboard.service.CandidateService;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -43,7 +41,7 @@ public class CandidateController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         CandidateProfileResponse profile = candidateService.getProfile(userPrincipal.getId());
-        return ResponseEntity.ok(new ApiResponse<>(true, profile, "Profile retrieved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(profile, "Profile retrieved successfully"));
     }
 
     @PutMapping("/profile")
@@ -53,17 +51,17 @@ public class CandidateController {
             @Valid @RequestBody CandidateProfileRequest request) {
 
         CandidateProfileResponse profile = candidateService.updateProfile(userPrincipal.getId(), request);
-        return ResponseEntity.ok(new ApiResponse<>(true, profile, "Profile updated successfully"));
+        return ResponseEntity.ok(ApiResponse.success(profile, "Profile updated successfully"));
     }
 
     @PostMapping("/resume")
     @Operation(summary = "Upload resume")
     public ResponseEntity<ApiResponse<Resume>> uploadResume(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam("file") MultipartFile file) throws IOException, TikaException {
+            @RequestParam("file") MultipartFile file) {
 
         Resume resume = candidateService.uploadResume(userPrincipal.getId(), file);
-        return ResponseEntity.ok(new ApiResponse<>(true, resume, "Resume uploaded successfully"));
+        return ResponseEntity.ok(ApiResponse.success(resume, "Resume uploaded successfully"));
     }
 
     @GetMapping("/resume")
@@ -72,7 +70,7 @@ public class CandidateController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         Resume resume = candidateService.getCurrentResume(userPrincipal.getId());
-        return ResponseEntity.ok(new ApiResponse<>(true, resume, "Resume retrieved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(resume, "Resume retrieved successfully"));
     }
 
     @PostMapping("/education")
@@ -82,7 +80,7 @@ public class CandidateController {
             @Valid @RequestBody EducationRequest request) {
 
         Education education = candidateService.addEducation(userPrincipal.getId(), request);
-        return ResponseEntity.ok(new ApiResponse<>(true, education, "Education added successfully"));
+        return ResponseEntity.ok(ApiResponse.success(education, "Education added successfully"));
     }
 
     @PostMapping("/experience")
@@ -92,7 +90,7 @@ public class CandidateController {
             @Valid @RequestBody ExperienceRequest request) {
 
         Experience experience = candidateService.addExperience(userPrincipal.getId(), request);
-        return ResponseEntity.ok(new ApiResponse<>(true, experience, "Experience added successfully"));
+        return ResponseEntity.ok(ApiResponse.success(experience, "Experience added successfully"));
     }
 
     @GetMapping("/jobs/recommended")
@@ -102,7 +100,7 @@ public class CandidateController {
             Pageable pageable) {
 
         List<JobResponse> jobs = candidateService.getRecommendedJobs(userPrincipal.getId(), pageable);
-        return ResponseEntity.ok(new ApiResponse<>(true, jobs, "Recommended jobs retrieved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(jobs, "Recommended jobs retrieved successfully"));
     }
 
     @PostMapping("/jobs/{jobId}/apply")
@@ -113,7 +111,7 @@ public class CandidateController {
             @Valid @RequestBody ApplicationRequest request) {
 
         candidateService.applyForJob(userPrincipal.getId(), jobId, request);
-        return ResponseEntity.ok(new ApiResponse<>(true, null, "Application submitted successfully"));
+        return ResponseEntity.ok(ApiResponse.success("Application submitted successfully"));
     }
 
     @GetMapping("/applications")
@@ -123,6 +121,6 @@ public class CandidateController {
             Pageable pageable) {
 
         Page<ApplicationResponse> applications = candidateService.getApplications(userPrincipal.getId(), pageable);
-        return ResponseEntity.ok(new ApiResponse<>(true, applications, "Applications retrieved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(applications, "Applications retrieved successfully"));
     }
 }

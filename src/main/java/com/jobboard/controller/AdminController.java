@@ -1,7 +1,7 @@
 package com.jobboard.controller;
 
-import com.jobboard.controller.AuthController.ApiResponse;
 import com.jobboard.dto.admin.PlatformStatsResponse;
+import com.jobboard.dto.common.ApiResponse;
 import com.jobboard.dto.user.UserResponse;
 import com.jobboard.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;

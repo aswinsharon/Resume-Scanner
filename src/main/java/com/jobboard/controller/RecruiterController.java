@@ -1,6 +1,6 @@
 package com.jobboard.controller;
 
-import com.jobboard.controller.AuthController.ApiResponse;
+import com.jobboard.dto.common.ApiResponse;
 import com.jobboard.dto.recruiter.RecruiterProfileRequest;
 import com.jobboard.dto.recruiter.RecruiterProfileResponse;
 import com.jobboard.security.UserPrincipal;

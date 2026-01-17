@@ -3,10 +3,13 @@ package com.jobboard.controller;
 import com.jobboard.dto.auth.JwtAuthenticationResponse;
 import com.jobboard.dto.auth.LoginRequest;
 import com.jobboard.dto.auth.RegisterRequest;
+import com.jobboard.dto.common.ApiResponse;
 import com.jobboard.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,8 @@ import java.util.Map;
 @Tag(name = "Authentication", description = "Authentication management APIs")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     private AuthService authService;
 
@@ -27,7 +32,7 @@ public class AuthController {
             @Valid @RequestBody RegisterRequest registerRequest) {
 
         JwtAuthenticationResponse response = authService.register(registerRequest);
-        return ResponseEntity.ok(new ApiResponse<>(true, response, "User registered successfully"));
+        return ResponseEntity.ok(ApiResponse.success(response, "User registered successfully"));
     }
 
     @PostMapping("/login")
@@ -36,7 +41,7 @@ public class AuthController {
             @Valid @RequestBody LoginRequest loginRequest) {
 
         JwtAuthenticationResponse response = authService.login(loginRequest);
-        return ResponseEntity.ok(new ApiResponse<>(true, response, "User authenticated successfully"));
+        return ResponseEntity.ok(ApiResponse.success(response, "User authenticated successfully"));
     }
 
     @PostMapping("/refresh")
@@ -46,50 +51,14 @@ public class AuthController {
 
         String refreshToken = request.get("refreshToken");
         JwtAuthenticationResponse response = authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(new ApiResponse<>(true, response, "Token refreshed successfully"));
+        return ResponseEntity.ok(ApiResponse.success(response, "Token refreshed successfully"));
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Logout user")
     public ResponseEntity<ApiResponse<String>> logout() {
         // In a real implementation, you might want to blacklist the token
-        return ResponseEntity.ok(new ApiResponse<>(true, null, "User logged out successfully"));
-    }
-
-    public static class ApiResponse<T> {
-        private boolean success;
-        private T data;
-        private String message;
-
-        public ApiResponse(boolean success, T data, String message) {
-            this.success = success;
-            this.data = data;
-            this.message = message;
-        }
-
-        // Getters and Setters
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public void setSuccess(boolean success) {
-            this.success = success;
-        }
-
-        public T getData() {
-            return data;
-        }
-
-        public void setData(T data) {
-            this.data = data;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
+        logger.info("User logout requested");
+        return ResponseEntity.ok(ApiResponse.success("User logged out successfully"));
     }
 }
